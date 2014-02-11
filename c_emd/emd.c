@@ -3,7 +3,8 @@
 /**************************************/
 
 #include <emd.h>
+#include <math.h>
 
 double emd(double a, double b) {
-    return a + b;
+    return fabs(a - b);
 }

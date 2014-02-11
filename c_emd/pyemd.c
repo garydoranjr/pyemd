@@ -1,12 +1,19 @@
 /**************************/
 /* Python Wrapper for EMD */
 /**************************/
-
-#include <emd.h>
 #include <Python.h>
 
+#include <emd.h>
+
 static PyObject *_emd(PyObject *self, PyObject *args) {
-    Py_RETURN_NONE;
+    double a;
+    double b;
+    
+    if (!PyArg_ParseTuple(args, "dd", &a, &b)) {
+      return NULL;
+    }
+
+    return Py_BuildValue("d", emd(a, b));
 }
 
 static PyMethodDef pyemd_methods[] = {

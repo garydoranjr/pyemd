@@ -5,18 +5,18 @@
 #include <emd.h>
 #include <Python.h>
 
-static PyObject *pyemd(PyObject *self, PyObject *args) {
+static PyObject *_emd(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
 static PyMethodDef pyemd_methods[] = {
-   { "emd", (PyCFunction)pyemd, METH_VARARGS,
+   { "_emd", (PyCFunction)_emd, METH_VARARGS,
      "Computes the EMD between two sets of weighted examples." },
    { NULL, NULL, 0, NULL }
 };
 
-void initemd(void)
+void initc_emd(void)
 {
-    Py_InitModule3("emd", pyemd_methods,
+    Py_InitModule3("c_emd", pyemd_methods,
                    "Earth Mover Distance");
 }

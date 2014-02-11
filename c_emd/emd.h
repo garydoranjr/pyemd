@@ -3,4 +3,4 @@
 /* Header File                        */
 /**************************************/
 
-double emd(double a, double b);
+double emd(double **X, double **Y);

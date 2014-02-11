@@ -5,6 +5,6 @@
 #include <emd.h>
 #include <math.h>
 
-double emd(double a, double b) {
-    return fabs(a - b);
+double emd(double **X, double **Y) {
+    return 1.0;
 }

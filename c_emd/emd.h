@@ -15,13 +15,24 @@ double *vector_malloc(int n);
 double *vector_copy(double *v, int n);
 void vector_free(double *v);
 
-double vector_sum(double *v, int n);
+//double vector_sum(double *v, int n);
 
-struct heap_entry {
+enum COLOR {
+    WHITE = 0,
+    GRAY,
+    BLACK
+};
+
+struct basic_variable {
     int row;
     int col;
-    double value;
+    double flow;
+    struct adj_node *adjacency;
+    struct basic_variable *back_ptr;
+    enum COLOR color;
 };
-void heapify(struct heap_entry *heap, int n);
-void siftdown(struct heap_entry *heap, int start, int end);
-void heapsort_iter(struct heap_entry *heap, int n);
+
+struct adj_node {
+    struct basic_variable *variable;
+    struct adj_node *next;
+};

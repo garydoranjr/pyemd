@@ -2,142 +2,125 @@
 /* EMD - compute earth mover distance */
 /**************************************/
 #include <stdlib.h>
-#include <stdio.h>
+#include <stdio.h> // TODO: REMOVE AFTER DEBUGGING
 
 #include <emd.h>
 #include <math.h>
 
-double **initialize_flow(int n_x, double *weight_x,
-                         int n_y, double *weight_y, double **cost);
+struct basic_variable **initialize_flow(int n_x, double *weight_x,
+                                       int n_y, double *weight_y,
+                                       double **cost);
+struct basic_variable *init_basic(int row, int col, double flow);
+void insert_basic(struct basic_variable **basis, int size,
+                  struct basic_variable *node);
 
 double emd(int n_x, double *weight_x,
            int n_y, double *weight_y, double **cost) {
-    int i, j;
-    double **flow;
+    struct basic_variable **basis;
 
     // Initialize
-    flow = initialize_flow(n_x, weight_x, n_y, weight_y, cost);
-    if (flow == NULL) {
-        array_free(flow, n_x);
-        return -1.0;
-    }
-
-    for (i = 0; i < n_x; i++) {
-        for (j = 0; j < n_y; j++) {
-            printf("%f ", flow[i][j]);
+    basis = initialize_flow(n_x, weight_x, n_y, weight_y, cost);
+    struct adj_node *adj;
+    int i;
+    for (i = 0; i < n_x + n_y - 1; i++) {
+        printf("row: %d, col: %d, flow: %f\n",
+            basis[i]->row, basis[i]->col, basis[i]->flow);
+        for (adj = basis[i]->adjacency; adj != NULL; adj = adj->next) {
+            printf("\tadj: row: %d, col: %d\n", adj->variable->row, adj->variable->col);
         }
-        printf("\n");
     }
 
+    // Iterate until optimality conditions satisfied
+
+    free(basis);
     return 1.0;
 }
 
-double **initialize_flow(int n_x, double *weight_x,
-                         int n_y, double *weight_y, double **cost){
-    double **flow;
+struct basic_variable **initialize_flow(int n_x, double *weight_x,
+                                       int n_y, double *weight_y,
+                                       double **cost){
+    struct basic_variable **basis;
+    struct basic_variable *basic;
     double *remaining_x;
     double *remaining_y;
-    struct heap_entry *heap;
-    int i, j, idx, n;
-    double amtx, amty, min_amt;
+    int fx, fy, b, B;
+    
+    b = 0;
+    B = n_x + n_y - 1;
 
-    n = n_x*n_y;
-    flow = array_malloc(n_x, n_y);
-    heap = (struct heap_entry *)malloc(n * sizeof(struct heap_entry));
-    for (i = 0; i < n_x; i++) {
-        for (j = 0; j < n_y; j++) {
-            idx = n_y*i + j;
-            heap[idx].row = i;
-            heap[idx].col = j;
-            heap[idx].value = cost[i][j];
+    basis = (struct basic_variable**)malloc(
+        (B+1)*sizeof(struct basic_variable*));
 
-            flow[i][j] = 0.0;
-        }
-    }
-
-    heapify(heap, n);
     remaining_x = vector_copy(weight_x, n_x);
     remaining_y = vector_copy(weight_y, n_y);
+    fx = 0;
+    fy = 0;
     while (1) {
-        heapsort_iter(heap, n);
-        n--;
-        amtx = remaining_x[heap[n].row];
-        amty = remaining_x[heap[n].col];
-        if (amtx <= amty) {
-            min_amt = amtx;
-        } else {
-            min_amt = amty;
-        }
-
-        if (min_amt > EPSILON) {
-            remaining_x[heap[n].row] -= min_amt;
-            remaining_y[heap[n].col] -= min_amt;
-            flow[heap[n].row][heap[n].col] += min_amt;
-        }
-        if (vector_sum(remaining_x, n_x) < EPSILON) {
+        if (fx == (n_x - 1)) {
+            for ( ; fy < n_y; fy++) {
+                basic = init_basic(fx, fy, remaining_y[fy]);
+                insert_basic(basis, b, basic);
+                b++;
+            }
             break;
         }
-        if (n == 0) {
-            goto fail;
+        if (fy == (n_y - 1)) {
+            for ( ; fx < n_x; fx++) {
+                basic = init_basic(fx, fy, remaining_x[fx]);
+                insert_basic(basis, b, basic);
+                b++;
+            }
+            break;
         }
-    }
-
-    free(heap);
-    vector_free(remaining_x);
-    vector_free(remaining_y);
-    return flow;
-
-fail:
-    free(heap);
-    array_free(flow, n_x);
-    vector_free(remaining_x);
-    vector_free(remaining_y);
-    return NULL;
-}
-
-void heapify(struct heap_entry *heap, int n) {
-    int start;
-    for (start = (n-2)/2; 0 <= start; start--) {
-        siftdown(heap, start, n-1);
-    }
-}
-
-/*
- * Performs one iteration of the heapsort algorithm on
- * the first n unsorted elements
- */
-void heapsort_iter(struct heap_entry *heap, int n) {
-    if (n <= 0) return;
-    struct heap_entry tmp;
-    tmp = heap[0];
-    heap[0] = heap[n-1];
-    heap[n-1] = tmp;
-    siftdown(heap, 0, n-1);
-}
-
-void siftdown(struct heap_entry *heap, int start, int end) {
-    struct heap_entry tmp;
-    int root, swap, left_child, right_child;
-
-    root = start;
-    while ((2*root + 1) <= end) {
-        left_child = 2*root + 1;
-        right_child = left_child + 1;
-        swap = root;
-        if (heap[swap].value < heap[left_child].value) {
-            swap = left_child;
-        }
-        if (right_child <= end
-                && heap[swap].value < heap[right_child].value) {
-            swap = right_child;
-        }
-        if (swap != root) {
-            tmp = heap[root];
-            heap[root] = heap[swap];
-            heap[swap] = tmp;
-            root = swap;
+        if (remaining_x[fx] <= remaining_y[fy]) {
+            basic = init_basic(fx, fy, remaining_x[fx]);
+            insert_basic(basis, b, basic);
+            b++;
+            remaining_y[fy] -= remaining_x[fx];
+            fx++;
         } else {
-            return;
+            basic = init_basic(fx, fy, remaining_y[fy]);
+            insert_basic(basis, b, basic);
+            b++;
+            remaining_x[fx] -= remaining_y[fy];
+            fy++;
+        }
+    }
+
+    vector_free(remaining_x);
+    vector_free(remaining_y);
+    return basis;
+}
+
+struct basic_variable *init_basic(int row, int col, double flow) {
+    struct basic_variable *var;
+    var = (struct basic_variable*)malloc(sizeof(struct basic_variable));
+    var->row = row;
+    var->col = col;
+    var->flow = flow;
+    var->adjacency = NULL;
+    var->back_ptr = NULL;
+    var->color = WHITE;
+    return var;
+}
+
+void insert_basic(struct basic_variable **basis, int size,
+                  struct basic_variable *node) {
+    struct adj_node *adj;
+    int i;
+    basis[size] = node;
+    for (i = 0; i < size; i++) {
+        if (basis[i]->row == node->row ||
+            basis[i]->col == node->col) {
+            adj = (struct adj_node*)malloc(sizeof(struct adj_node));
+            adj->variable = node;
+            adj->next = basis[i]->adjacency;
+            basis[i]->adjacency = adj;
+
+            adj = (struct adj_node*)malloc(sizeof(struct adj_node));
+            adj->variable = basis[i];
+            adj->next = node->adjacency;
+            node->adjacency = adj;
         }
     }
 }
@@ -180,12 +163,12 @@ void vector_free(double *v) {
     free(v);
 }
 
-double vector_sum(double *v, int n) {
-    double sum;
-    int i;
-    sum = 0;
-    for (i = 0; i < n; i++) {
-        sum += v[i];
-    }
-    return sum;
-}
+//double vector_sum(double *v, int n) {
+//    double sum;
+//    int i;
+//    sum = 0;
+//    for (i = 0; i < n; i++) {
+//        sum += v[i];
+//    }
+//    return sum;
+//}

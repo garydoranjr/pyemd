@@ -2,7 +2,7 @@ CC = gcc
 # -g : allows use of GNU Debugger
 # -Wall : show all warnings
 FLAGS = -g -Wall -lm
-COMMON = ../c_emd/emd.c
+COMMON = ../c_emd/emd.c ../c_emd/emd.h
 INCLUDE = -I../c_emd
 MAIN = test.o
 

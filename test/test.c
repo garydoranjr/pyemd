@@ -3,8 +3,36 @@
  */
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 
 #include <emd.h>
+
+double **euclidean(int rx, int cx, double **X,
+                 int ry, int cy, double **Y) {
+
+    if (cx != cy) {
+        return NULL;
+    }
+
+    double **D;
+    double accumulator, diff;
+    int i, j, c;
+
+    D = array_malloc(rx, ry);
+
+    for (i = 0; i < rx; i++) {
+        for (j = 0; j < ry; j++) {
+            accumulator = 0.0;
+            for (c = 0; c < cx; c++) {
+                diff = X[i][c] - Y[j][c];
+                accumulator += diff*diff;
+            }
+            D[i][j] = sqrt(accumulator);
+        }
+    }
+
+    return D;
+}
 
 int main(int argc, char *argv[]) {
     double **X;
@@ -20,10 +48,28 @@ int main(int argc, char *argv[]) {
     Y[1][0] = -1.0;
     Y[1][1] =  0.0;
 
+    double **C;
+    C = euclidean(2, 2, X, 2, 2, Y);
+    if (C == NULL) {
+        return EXIT_FAILURE;
+    }
+
+    double *wx;
+    double *wy;
+    wx = vector_malloc(2);
+    wy = vector_malloc(2);
+    wx[0] = 0.5;
+    wx[1] = 0.5;
+    wy[0] = 0.5;
+    wy[1] = 0.5;
+
     double dist;
-    dist = emd(X, Y);
+    dist = emd(2, wx, 2, wy, C);
     printf("EMD: %f\n", dist);
 
+    vector_free(wx);
+    vector_free(wy);
+    array_free(C, 2);
     array_free(X, 2);
     array_free(Y, 2);
     return EXIT_SUCCESS;

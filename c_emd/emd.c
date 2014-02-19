@@ -112,7 +112,7 @@ double emd(int n_x, double *weight_x,
                 break;
             }
         }
-        if (min_slack >= 0.0) { break; }
+        if (min_slack >= -EPSILON) { break; }
 
         // Introduce a new variable
         var = init_basic(min_row, min_col, 0.0);

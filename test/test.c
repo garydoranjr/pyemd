@@ -7,6 +7,24 @@
 
 #include <emd.h>
 
+double **array_malloc(int rows, int cols) {
+    double **X;
+    int i;
+    X = (double **) malloc(rows*sizeof(double *));
+    for (i = 0; i < rows; i++) {
+        X[i] = (double *) malloc(cols*sizeof(double));
+    }
+    return X;
+}
+
+void array_free(double **X, int rows) {
+    int i;
+    for (i = 0; i < rows; i++) {
+        free(X[i]);
+    }
+    free(X);
+}
+
 double **euclidean(int rx, int cx, double **X,
                  int ry, int cy, double **Y) {
 

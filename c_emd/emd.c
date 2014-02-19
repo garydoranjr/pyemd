@@ -5,9 +5,8 @@
  * by Gary Doran, 2014                                           *
  *****************************************************************/
 #include <stdlib.h>
-#include <stdio.h> // TODO: REMOVE AFTER DEBUGGING
 
-//#define NDEBUG
+#define NDEBUG
 #include <assert.h>
 
 #include <emd.h>
@@ -44,16 +43,7 @@ double emd(int n_x, double *weight_x,
     double min_slack, slack, min_flow, sign, distance;
     B = n_x + n_y - 1;
 
-    // Initialize
     basis = initialize_flow(n_x, weight_x, n_y, weight_y, cost);
-    //for (i = 0; i < B; i++) {
-    //    printf("row: %d, col: %d, flow: %f\n",
-    //        basis[i]->row, basis[i]->col, basis[i]->flow);
-    //    for (adj = basis[i]->adjacency; adj != NULL; adj = adj->next) {
-    //        printf("\tadj: row: %d, col: %d\n",
-    //            adj->variable->row, adj->variable->col);
-    //    }
-    //}
 
     // Iterate until optimality conditions satisfied
     dual_x = vector_malloc(n_x);
@@ -110,8 +100,7 @@ double emd(int n_x, double *weight_x,
                 }
             }
         }
-        // TODO: Use epsilon ?
-        if (min_slack >= 0.0) { break; }
+        if (min_slack >= -EPSILON) { break; }
 
         // Introduce a new variable
         var = init_basic(min_row, min_col, 0.0);
@@ -133,9 +122,10 @@ double emd(int n_x, double *weight_x,
                 if (adj->variable->color == WHITE) { break; }
             }
             if (adj == NULL) {
-                var-> color = BLACK;
+                var->color = BLACK;
                 var = var->back_ptr;
                 if (var == NULL) {
+                    // Couldn't find a cycle
                     assert(FALSE);
                 }
             } else {
@@ -342,24 +332,6 @@ void destruct_basis(struct basic_variable **basis, int size) {
         free(basis[i]);
     }
     free(basis);
-}
-
-double **array_malloc(int rows, int cols) {
-    double **X;
-    int i;
-    X = (double **) malloc(rows*sizeof(double *));
-    for (i = 0; i < rows; i++) {
-        X[i] = (double *) malloc(cols*sizeof(double));
-    }
-    return X;
-}
-
-void array_free(double **X, int rows) {
-    int i;
-    for (i = 0; i < rows; i++) {
-        free(X[i]);
-    }
-    free(X);
 }
 
 double *vector_malloc(int n) {

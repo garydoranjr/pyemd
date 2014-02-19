@@ -100,7 +100,19 @@ double emd(int n_x, double *weight_x,
                 }
             }
         }
-        if (min_slack >= -EPSILON) { break; }
+        for (i = 0; i < B; i++) {
+            // If the pivot variable is any of the
+            // basis variables, then the optimal
+            // solution has been found; set
+            // min_slack = 0.0 explicitly to avoid
+            // floating point issues in comparison.
+            if (basis[i]->row == min_row &&
+                basis[i]->col == min_col) {
+                min_slack = 0.0;
+                break;
+            }
+        }
+        if (min_slack >= 0.0) { break; }
 
         // Introduce a new variable
         var = init_basic(min_row, min_col, 0.0);

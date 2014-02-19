@@ -1,6 +1,9 @@
-/**************************************/
-/* EMD - compute earth mover distance */
-/**************************************/
+/*****************************************************************
+ * EMD - Earth Mover Distance between weighted samples           *
+ * Uses the transportation algorithm described at:               *
+ * http://www.me.utexas.edu/~jensen/methods/net.pdf/nettrans.pdf *
+ * by Gary Doran, 2014                                           *
+ *****************************************************************/
 #include <stdlib.h>
 #include <stdio.h> // TODO: REMOVE AFTER DEBUGGING
 #include <math.h>
@@ -21,6 +24,16 @@ void remove_basic(struct basic_variable **basis, int size,
 void reset_current_adj(struct basic_variable **basis, int size);
 void destruct_basis(struct basic_variable **basis, int size);
 
+/*
+ * Compute EMD between weighted samples, given a pairwise cost matrix
+ * @param int n_x : number of samples in X
+ * @param double *weight_x : list of weights of samples in X (sums to 1)
+ * @param int n_y : number of samples in Y
+ * @param double *weight_y : list of weights of samples in Y (sums to 1)
+ * @param double **cost : pairwise cost matrix; cost[i][j] holds cost to
+ *     "move dirt" from X_i to Y_j
+ * @return double : returns EMD between samples
+ */
 double emd(int n_x, double *weight_x,
            int n_y, double *weight_y, double **cost) {
     struct basic_variable **basis;
@@ -176,6 +189,10 @@ double emd(int n_x, double *weight_x,
     return distance;
 }
 
+/*
+ * Initialize the basic variables with a feasible solution
+ * using the "Northwest Corner Rule"
+ */
 struct basic_variable **initialize_flow(int n_x, double *weight_x,
                                        int n_y, double *weight_y,
                                        double **cost){

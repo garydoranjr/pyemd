@@ -3,9 +3,12 @@
 /**************************************/
 #include <stdlib.h>
 #include <stdio.h> // TODO: REMOVE AFTER DEBUGGING
+#include <math.h>
+
+//#define NDEBUG
+#include <assert.h>
 
 #include <emd.h>
-#include <math.h>
 
 struct basic_variable **initialize_flow(int n_x, double *weight_x,
                                        int n_y, double *weight_y,
@@ -13,28 +16,30 @@ struct basic_variable **initialize_flow(int n_x, double *weight_x,
 struct basic_variable *init_basic(int row, int col, double flow);
 void insert_basic(struct basic_variable **basis, int size,
                   struct basic_variable *node);
+void remove_basic(struct basic_variable **basis, int size,
+                  struct basic_variable *node);
 void reset_current_adj(struct basic_variable **basis, int size);
 void destruct_basis(struct basic_variable **basis, int size);
 
 double emd(int n_x, double *weight_x,
            int n_y, double *weight_y, double **cost) {
     struct basic_variable **basis;
-    struct basic_variable *var;
-    double *dual_x;
-    double *dual_y;
-    int *solved_x;
-    int *solved_y;
-    int i, B;
+    struct basic_variable *var, *root, *to_remove;
+    struct adj_node *adj;
+    double *dual_x, *dual_y;
+    int *solved_x, *solved_y;
+    int i, j, B, min_row, min_col;
+    double min_slack, slack, min_flow, sign, distance;
     B = n_x + n_y - 1;
 
     // Initialize
     basis = initialize_flow(n_x, weight_x, n_y, weight_y, cost);
-    struct adj_node *adj;
     for (i = 0; i < B; i++) {
         printf("row: %d, col: %d, flow: %f\n",
             basis[i]->row, basis[i]->col, basis[i]->flow);
         for (adj = basis[i]->adjacency; adj != NULL; adj = adj->next) {
-            printf("\tadj: row: %d, col: %d\n", adj->variable->row, adj->variable->col);
+            printf("\tadj: row: %d, col: %d\n",
+                adj->variable->row, adj->variable->col);
         }
     }
 
@@ -43,37 +48,123 @@ double emd(int n_x, double *weight_x,
     dual_y = vector_malloc(n_y);
     solved_x = (int *) malloc(n_x*sizeof(int));
     solved_y = (int *) malloc(n_y*sizeof(int));
-    for (i = 0; i < n_x; i++) { solved_x[i] = 0; }
-    for (i = 0; i < n_y; i++) { solved_y[i] = 0; }
-    reset_current_adj(basis, B);
-    var = basis[0];
-    dual_x[var->row] = 0.0;
-    solved_x[var->row] = 1;
     while (1) {
-        var->color = GRAY;
-        if (solved_x[var->row]){
-            dual_y[var->col] = (cost[var->row][var->col] - dual_x[var->row]);
-            solved_y[var->col] = 1;
-        } else if (solved_y[var->col]) {
-            dual_x[var->row] = (cost[var->row][var->col] - dual_y[var->col]);
-            solved_x[var->row] = 1;
-        } else {
-            // TODO: Check that this never happens
-        }
-        for (adj = var->current_adj; adj != NULL; adj = adj->next) {
-            if (adj->variable->color == WHITE) { break; }
-        }
-        if (adj == NULL) {
-            var->color = BLACK;
-            var = var->back_ptr;
-            if (var == NULL) {
-                break;
+        for (i = 0; i < n_x; i++) { solved_x[i] = 0; }
+        for (i = 0; i < n_y; i++) { solved_y[i] = 0; }
+        reset_current_adj(basis, B);
+        var = basis[0];
+        dual_x[var->row] = 0.0;
+        solved_x[var->row] = 1;
+        while (1) {
+            var->color = GRAY;
+            if (solved_x[var->row]){
+                dual_y[var->col] = (cost[var->row][var->col]
+                                    - dual_x[var->row]);
+                solved_y[var->col] = 1;
+            } else if (solved_y[var->col]) {
+                dual_x[var->row] = (cost[var->row][var->col]
+                                    - dual_y[var->col]);
+                solved_x[var->row] = 1;
+            } else {
+                assert(FALSE);
             }
-        } else {
-            var->current_adj = adj->next;
-            adj->variable->back_ptr = var;
-            var = adj->variable;
+            for (adj = var->current_adj; adj != NULL; adj = adj->next) {
+                if (adj->variable->color == WHITE) { break; }
+            }
+            if (adj == NULL) {
+                var->color = BLACK;
+                var = var->back_ptr;
+                if (var == NULL) {
+                    break;
+                }
+            } else {
+                var->current_adj = adj->next;
+                adj->variable->back_ptr = var;
+                var = adj->variable;
+            }
         }
+
+        // Check for optimality
+        min_row = -1;
+        min_col = -1;
+        min_slack = 0.0;
+        for (i = 0; i < n_x; i++) {
+            for (j = 0; j < n_y; j++) {
+                slack = cost[i][j] - dual_x[i] - dual_y[j];
+                if (min_row < 0 || slack < min_slack) {
+                    min_row = i;
+                    min_col = j;
+                    min_slack = slack;
+                }
+            }
+        }
+        // TODO: Use epsilon ?
+        if (min_slack >= 0.0) { break; }
+
+        // Introduce a new variable
+        var = init_basic(min_row, min_col, 0.0);
+        insert_basic(basis, B, var);
+        root = var;
+        reset_current_adj(basis, B + 1);
+        while (1) {
+            var->color = GRAY;
+            for (adj = var->current_adj; adj != NULL; adj = adj->next) {
+                if (var->back_ptr != NULL
+                    && (var->back_ptr->row == adj->variable->row
+                     || var->back_ptr->col == adj->variable->col)) {
+                    continue;
+                }
+                if (adj->variable == root) {
+                    // Found a cycle
+                    break;
+                }
+                if (adj->variable->color == WHITE) { break; }
+            }
+            if (adj == NULL) {
+                var-> color = BLACK;
+                var = var->back_ptr;
+                if (var == NULL) {
+                    assert(FALSE);
+                }
+            } else {
+                if (adj->variable->color == GRAY) {
+                    // We found a cycle
+                    root->back_ptr = var;
+                    break;
+                } else {
+                    var->current_adj = adj->next;
+                    adj->variable->back_ptr = var;
+                    var = adj->variable;
+                }
+            }
+        }
+
+        // Find the largest flow that can be subtracted
+        sign = -1.0;
+        min_flow = 0;
+        to_remove = NULL;
+        for (var = root->back_ptr; var != root; var = var->back_ptr) {
+            if (sign < 0 && (to_remove == NULL || var->flow < min_flow)) {
+                min_flow = var->flow;
+                to_remove = var;
+            }
+            sign *= -1.0;
+        }
+
+        // Adjust flows
+        sign = -1.0;
+        root->flow = min_flow;
+        for (var = root->back_ptr; var != root; var = var->back_ptr) {
+            var->flow += (sign * min_flow);
+            sign *= -1.0;
+        }
+
+        remove_basic(basis, B, to_remove);
+    }
+
+    distance = 0;
+    for (i = 0; i < B; i++) {
+        distance += (basis[i]->flow * cost[basis[i]->row][basis[i]->col]);
     }
 
     vector_free(dual_x);
@@ -81,7 +172,7 @@ double emd(int n_x, double *weight_x,
     free(solved_x);
     free(solved_y);
     destruct_basis(basis, B);
-    return 1.0;
+    return distance;
 }
 
 struct basic_variable **initialize_flow(int n_x, double *weight_x,
@@ -172,6 +263,43 @@ void insert_basic(struct basic_variable **basis, int size,
             node->adjacency = adj;
         }
     }
+}
+
+void remove_basic(struct basic_variable **basis, int size,
+                  struct basic_variable *node) {
+    // Find node in list
+    int i;
+    for (i = 0; i < size; i++) {
+        if (node == basis[i]) { break; }
+    }
+    assert (i < size);
+
+    // Remove entry from adjacency lists of other nodes
+    struct adj_node *a, *o, *last, *next;
+    a = node->adjacency;
+    while (a != NULL) {
+        last = NULL;
+        for (o = a->variable->adjacency; o != NULL;
+             o = o->next) {
+            if (o->variable == node) {
+                if (last == NULL) {
+                    a->variable->adjacency = o->next;
+                } else {
+                    last->next = o->next;
+                }
+                free(o);
+                break;
+            }
+            last = o;
+        }
+
+        next = a->next;
+        free(a);
+        a = next;
+    }
+    free(basis[i]);
+
+    basis[i] = basis[size];
 }
 
 void reset_current_adj(struct basic_variable **basis, int size) {

@@ -4,6 +4,8 @@
 /**************************************/
 
 #define EPSILON 1e-15
+#define FALSE 0
+#define TRUE 1
 
 double emd(int n_x, double *weight_x,
            int n_y, double *weight_y,

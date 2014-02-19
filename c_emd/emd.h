@@ -15,9 +15,6 @@ double **array_malloc(int rows, int cols);
 void array_free(double **X, int rows);
 double *vector_malloc(int n);
 double *vector_copy(double *v, int n);
-void vector_free(double *v);
-
-//double vector_sum(double *v, int n);
 
 enum COLOR {
     WHITE = 0,

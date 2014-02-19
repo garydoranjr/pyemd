@@ -67,8 +67,8 @@ int main(int argc, char *argv[]) {
     dist = emd(2, wx, 2, wy, C);
     printf("EMD: %f\n", dist);
 
-    vector_free(wx);
-    vector_free(wy);
+    free(wx);
+    free(wy);
     array_free(C, 2);
     array_free(X, 2);
     array_free(Y, 2);

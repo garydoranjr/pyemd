@@ -34,14 +34,14 @@ double emd(int n_x, double *weight_x,
 
     // Initialize
     basis = initialize_flow(n_x, weight_x, n_y, weight_y, cost);
-    for (i = 0; i < B; i++) {
-        printf("row: %d, col: %d, flow: %f\n",
-            basis[i]->row, basis[i]->col, basis[i]->flow);
-        for (adj = basis[i]->adjacency; adj != NULL; adj = adj->next) {
-            printf("\tadj: row: %d, col: %d\n",
-                adj->variable->row, adj->variable->col);
-        }
-    }
+    //for (i = 0; i < B; i++) {
+    //    printf("row: %d, col: %d, flow: %f\n",
+    //        basis[i]->row, basis[i]->col, basis[i]->flow);
+    //    for (adj = basis[i]->adjacency; adj != NULL; adj = adj->next) {
+    //        printf("\tadj: row: %d, col: %d\n",
+    //            adj->variable->row, adj->variable->col);
+    //    }
+    //}
 
     // Iterate until optimality conditions satisfied
     dual_x = vector_malloc(n_x);
@@ -159,6 +159,7 @@ double emd(int n_x, double *weight_x,
             sign *= -1.0;
         }
 
+        // Remove the basic variable that went to zero
         remove_basic(basis, B, to_remove);
     }
 
@@ -167,8 +168,8 @@ double emd(int n_x, double *weight_x,
         distance += (basis[i]->flow * cost[basis[i]->row][basis[i]->col]);
     }
 
-    vector_free(dual_x);
-    vector_free(dual_y);
+    free(dual_x);
+    free(dual_y);
     free(solved_x);
     free(solved_y);
     destruct_basis(basis, B);
@@ -226,8 +227,8 @@ struct basic_variable **initialize_flow(int n_x, double *weight_x,
         }
     }
 
-    vector_free(remaining_x);
-    vector_free(remaining_y);
+    free(remaining_x);
+    free(remaining_y);
     return basis;
 }
 
@@ -360,17 +361,3 @@ double *vector_copy(double *v, int n) {
     }
     return copy;
 }
-
-void vector_free(double *v) {
-    free(v);
-}
-
-//double vector_sum(double *v, int n) {
-//    double sum;
-//    int i;
-//    sum = 0;
-//    for (i = 0; i < n; i++) {
-//        sum += v[i];
-//    }
-//    return sum;
-//}

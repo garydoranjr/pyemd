@@ -6,7 +6,6 @@
  *****************************************************************/
 #include <stdlib.h>
 #include <stdio.h> // TODO: REMOVE AFTER DEBUGGING
-#include <math.h>
 
 //#define NDEBUG
 #include <assert.h>

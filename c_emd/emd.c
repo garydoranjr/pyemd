@@ -13,16 +13,24 @@ struct basic_variable **initialize_flow(int n_x, double *weight_x,
 struct basic_variable *init_basic(int row, int col, double flow);
 void insert_basic(struct basic_variable **basis, int size,
                   struct basic_variable *node);
+void reset_current_adj(struct basic_variable **basis, int size);
+void destruct_basis(struct basic_variable **basis, int size);
 
 double emd(int n_x, double *weight_x,
            int n_y, double *weight_y, double **cost) {
     struct basic_variable **basis;
+    struct basic_variable *var;
+    double *dual_x;
+    double *dual_y;
+    int *solved_x;
+    int *solved_y;
+    int i, B;
+    B = n_x + n_y - 1;
 
     // Initialize
     basis = initialize_flow(n_x, weight_x, n_y, weight_y, cost);
     struct adj_node *adj;
-    int i;
-    for (i = 0; i < n_x + n_y - 1; i++) {
+    for (i = 0; i < B; i++) {
         printf("row: %d, col: %d, flow: %f\n",
             basis[i]->row, basis[i]->col, basis[i]->flow);
         for (adj = basis[i]->adjacency; adj != NULL; adj = adj->next) {
@@ -31,8 +39,48 @@ double emd(int n_x, double *weight_x,
     }
 
     // Iterate until optimality conditions satisfied
+    dual_x = vector_malloc(n_x);
+    dual_y = vector_malloc(n_y);
+    solved_x = (int *) malloc(n_x*sizeof(int));
+    solved_y = (int *) malloc(n_y*sizeof(int));
+    for (i = 0; i < n_x; i++) { solved_x[i] = 0; }
+    for (i = 0; i < n_y; i++) { solved_y[i] = 0; }
+    reset_current_adj(basis, B);
+    var = basis[0];
+    dual_x[var->row] = 0.0;
+    solved_x[var->row] = 1;
+    while (1) {
+        var->color = GRAY;
+        if (solved_x[var->row]){
+            dual_y[var->col] = (cost[var->row][var->col] - dual_x[var->row]);
+            solved_y[var->col] = 1;
+        } else if (solved_y[var->col]) {
+            dual_x[var->row] = (cost[var->row][var->col] - dual_y[var->col]);
+            solved_x[var->row] = 1;
+        } else {
+            // TODO: Check that this never happens
+        }
+        for (adj = var->current_adj; adj != NULL; adj = adj->next) {
+            if (adj->variable->color == WHITE) { break; }
+        }
+        if (adj == NULL) {
+            var->color = BLACK;
+            var = var->back_ptr;
+            if (var == NULL) {
+                break;
+            }
+        } else {
+            var->current_adj = adj->next;
+            adj->variable->back_ptr = var;
+            var = adj->variable;
+        }
+    }
 
-    free(basis);
+    vector_free(dual_x);
+    vector_free(dual_y);
+    free(solved_x);
+    free(solved_y);
+    destruct_basis(basis, B);
     return 1.0;
 }
 
@@ -99,6 +147,7 @@ struct basic_variable *init_basic(int row, int col, double flow) {
     var->col = col;
     var->flow = flow;
     var->adjacency = NULL;
+    var->current_adj = NULL;
     var->back_ptr = NULL;
     var->color = WHITE;
     return var;
@@ -123,6 +172,31 @@ void insert_basic(struct basic_variable **basis, int size,
             node->adjacency = adj;
         }
     }
+}
+
+void reset_current_adj(struct basic_variable **basis, int size) {
+    int i;
+    for (i = 0; i < size; i++) {
+        basis[i]->current_adj = basis[i]->adjacency;
+        basis[i]->back_ptr = NULL;
+        basis[i]->color = WHITE;
+    }
+}
+
+void destruct_basis(struct basic_variable **basis, int size) {
+    int i;
+    struct adj_node *adj;
+    struct adj_node *next_adj;
+    for (i = 0; i < size; i++) {
+        adj = basis[i]->adjacency;
+        while (adj != NULL) {
+            next_adj = adj->next;
+            free(adj);
+            adj = next_adj;
+        }
+        free(basis[i]);
+    }
+    free(basis);
 }
 
 double **array_malloc(int rows, int cols) {

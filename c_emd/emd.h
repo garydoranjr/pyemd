@@ -28,6 +28,7 @@ struct basic_variable {
     int col;
     double flow;
     struct adj_node *adjacency;
+    struct adj_node *current_adj;
     struct basic_variable *back_ptr;
     enum COLOR color;
 };

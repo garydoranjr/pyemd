@@ -7,7 +7,7 @@ MAIN = c_emd.c
 
 MEX = $(MATLABDIR)/bin/mex
 MEX_OPTION = CC\#$(CXX) CXX\#$(CXX) CFLAGS\#"$(CFLAGS)" CXXFLAGS\#"$(CFLAGS)"
-# comment the following line if you use MATLAB on 32-bit computer
+# comment the following for 32-bit systems
 MEX_OPTION += -largeArrayDims
 MEX_EXT = $(shell $(MATLABDIR)/bin/mexext)
 

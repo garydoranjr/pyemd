@@ -1,15 +1,15 @@
-PyEMD: Earth Mover's Distance for Python
-========================================
+PyEMD: Earth Mover's Distance for Python (and MATLAB)
+=====================================================
 by Gary Doran (<gary.doran@case.edu>)
 
 Overview
 --------
 An efficient, accurate, easy-to-use EMD implementation in C with Python
-wrapper.
+wrapper. New bonus MATLAB wrapper also included.
 
 Installation
 ------------
-This package can be installed in two ways (the easy way):
+*Python:* this package can be installed in two ways (the easy way):
 
     # If needed:
     # pip install numpy
@@ -28,6 +28,13 @@ information, see:
 
  + [NumPy](http://www.numpy.org/): Library for efficient matrix math in Python
  + [SciPy](http://www.scipy.org/): Library for more MATLAB-like functionality
+
+*MATLAB:* clone the repository and `cd` to the `matlab` subdirectory. Either
+set the `MATLABDIR` environment variable, or edit the first line of the Makefile
+to set the path to the desired MATLAB installation, and then run `make`.
+
+After the MEX file has compiled, add the `matlab` subdirectory to the MATLAB
+path (e.g., by using the `addpath` command in MATLAB).
 
 Why?
 ----
@@ -64,7 +71,7 @@ SciPy library, and a custom, precomputed distance matrix can be easily provided.
 
 Usage
 -----
-The EMD implementation can be used simply as:
+The EMD implementation can be used simply in Python as:
 
     >>> from emd import emd
     >>> emd(X, Y)
@@ -83,7 +90,8 @@ by the `scipy.spatial.cdist` function. Alternatively, if
 `distance='precomputed'`, then a precomputed distance matrix is expected to be
 supplied to the optional argument `D`.
 
-See the docstring for a more formal description of the functionality.
+See the docstring for a more formal description of the functionality. In MATLAB,
+the functionality is essentially the same; see the help for details.
 
 Questions and Issues
 --------------------

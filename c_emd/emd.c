@@ -5,8 +5,6 @@
  * by Gary Doran, 2014                                           *
  *****************************************************************/
 #include <stdlib.h>
-
-#define NDEBUG
 #include <assert.h>
 
 #include <emd.h>

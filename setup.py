@@ -11,6 +11,14 @@ c_emd = Extension(
 setup(
     name='emd',
     version='1.0',
+    description=(
+      "Accurate, efficient Earth Mover's Distance in Python."
+    ),
+    author='Gary Doran',
+    author_email='gary.doran@case.edu',
+    url='https://github.com/garydoranjr/pyemd.git',
+    license="BSD compatable (see the LICENSE file)",
+    platforms=['unix'],
     packages=['emd'],
     ext_modules=[c_emd]
 )

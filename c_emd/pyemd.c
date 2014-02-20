@@ -25,8 +25,9 @@ static PyObject *_emd(PyObject *self, PyObject *args) {
     }
     
     // Convert inputs
-    n_x = arg1->dimensions[0];
-    n_y = arg2->dimensions[0];
+    // Assumes array data is contiguous
+    n_x = (int) arg1->dimensions[0];
+    n_y = (int) arg2->dimensions[0];
     weight_x = (double *)arg1->data;
     weight_y = (double *)arg2->data;
     cost = (double **) malloc((size_t) n_x * sizeof(double *));
@@ -41,7 +42,13 @@ static PyObject *_emd(PyObject *self, PyObject *args) {
 
 static PyMethodDef c_emd_methods[] = {
    { "_emd", (PyCFunction)_emd, METH_VARARGS,
-     "Computes the EMD between two sets of weighted examples." },
+    "Computes the EMD between two sets of weighted examples, cost matrix.\n"
+    "@param weight_x : NumPy array of weights for first sample of size n\n"
+    "@param weight_y : NumPy array of weights for second sample of size m\n"
+    "@param cost     : NumPy array of size n-by-m holding pairwise costs\n"
+    "                  to \"move dirt\" between samples\n"
+    "@return : double value corresponding to the EMD between samples"
+   },
    { NULL, NULL, 0, NULL }
 };
 

@@ -67,6 +67,5 @@ else
     end
 end
 
-dist = 1.0;
-%dist = _emd(X_weights, Y_weights, D);
+dist = c_emd(X_weights, Y_weights, D);
 end

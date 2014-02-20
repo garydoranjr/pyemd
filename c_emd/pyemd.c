@@ -48,6 +48,6 @@ static PyMethodDef c_emd_methods[] = {
 void initc_emd(void)
 {
     Py_InitModule3("c_emd", c_emd_methods,
-                   "Earth Mover Distance");
+                   "Earth Mover's Distance");
     import_array();
 }

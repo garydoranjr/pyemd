@@ -1,5 +1,5 @@
 /*****************************************************************
- * EMD - Earth Mover Distance between weighted samples           *
+ * EMD - Earth Mover's Distance between weighted samples         *
  * Uses the transportation algorithm described at:               *
  * http://www.me.utexas.edu/~jensen/methods/net.pdf/nettrans.pdf *
  * by Gary Doran, 2014                                           *

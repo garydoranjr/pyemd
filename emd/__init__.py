@@ -1,4 +1,4 @@
 """
-Earth Mover Distance in Python
+Earth Mover's Distance in Python
 """
 from emd import emd

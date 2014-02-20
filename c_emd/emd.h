@@ -1,7 +1,6 @@
-/**************************************/
-/* EMD - compute earth mover distance */
-/* Header File                        */
-/**************************************/
+/****************************************/
+/* EMD - compute earth mover's distance */
+/****************************************/
 
 #define EPSILON 1e-12
 #define FALSE 0

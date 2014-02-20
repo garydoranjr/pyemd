@@ -2,7 +2,8 @@ CC = gcc
 # -g : allows use of GNU Debugger
 # -Wall : show all warnings
 FLAGS = -g -Wall -lm
-COMMON = ../c_emd/emd.c ../c_emd/emd.h
+COMMON = ../c_emd/emd.c
+HEADER = ../c_emd/emd.h
 INCLUDE = -I../c_emd
 MAIN = test.o
 
@@ -13,6 +14,8 @@ all: $(MAIN)
 	$(CC) $(LIBS) $(INCLUDE) $(FLAGS) -o $@ $^
 	@# Make the output file executable
 	chmod 755 $@
+
+test.c: $(COMMON) $(HEADER)
 
 clean:
 	@# Using the '@' sign suppresses echoing

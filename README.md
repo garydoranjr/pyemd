@@ -54,6 +54,8 @@ their limitations:
     I'm not able to confirm whether the difference is entirely caused by a loss
     of precision, or issues with the OpenCV wrapper, but I have validated the
     accuracy of this implementation via a comparison to the GLPK implementation.
+    Another issue is a hard-coded `MAX_SIG_SIZE`, which limits the size of the
+    samples that can be used in the EMD computation.
 
 PyEMD is a more "Pythonic" EMD implementation than other wrappers. Only the
 minimal amount of computation is done in C (the core transportation algorithm).

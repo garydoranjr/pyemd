@@ -44,8 +44,9 @@ their limitations:
     are compared using the EMD for the multiple-instance learning problems I
     study.
 
-  - *Wrap Yossi Rubner's Implementation:* There exist several wrappers of Yossi
-    Rubner's EMD code, the most popular of which is in the OpenCV library. The
+  - *Wrap Yossi Rubner's Implementation:* There exist several wrappers of
+    [Yossi Rubner's EMD code](http://robotics.stanford.edu/~rubner/emd/default.htm),
+    the most popular of which is in the OpenCV library. The
     first limitation of this code is the use of single-precison versus
     double-precision floating point numbers. In practice, I have observed
     significant (on the order of 20-50%) differences between the OpenCV EMD

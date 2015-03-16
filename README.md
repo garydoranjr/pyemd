@@ -14,7 +14,7 @@ Installation
     # If needed:
     # pip install numpy
     # pip install scipy
-    pip install -e git+https://github.com/garydoranjr/pyemd.git#egg=misvm
+    pip install -e git+https://github.com/garydoranjr/pyemd.git#egg=pyemd
 
 or by running the setup file manually
 

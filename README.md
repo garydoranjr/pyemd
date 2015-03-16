@@ -55,14 +55,9 @@ their limitations:
     [Yossi Rubner's EMD code](http://robotics.stanford.edu/~rubner/emd/default.htm),
     the most popular of which is in the OpenCV library. The
     first limitation of this code is the use of single-precison versus
-    double-precision floating point numbers. In practice, I have observed
-    significant (on the order of 20-50%) differences between the OpenCV EMD
-    implementation and this implementation, which uses double-precision floats.
-    I'm not able to confirm whether the difference is entirely caused by a loss
-    of precision, or issues with the OpenCV wrapper, but I have validated the
-    accuracy of this implementation via a comparison to the GLPK implementation.
-    Another issue is a hard-coded `MAX_SIG_SIZE`, which limits the size of the
-    samples that can be used in the EMD computation.
+    double-precision floating point numbers.  Another issue is a hard-coded
+    `MAX_SIG_SIZE`, which limits the size of the samples that can be used in
+    the EMD computation.
 
 PyEMD is a more "Pythonic" EMD implementation than other wrappers. Only the
 minimal amount of computation is done in C (the core transportation algorithm).

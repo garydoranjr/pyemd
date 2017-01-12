@@ -85,6 +85,10 @@ by the `scipy.spatial.cdist` function. Alternatively, if
 `distance='precomputed'`, then a precomputed distance matrix is expected to be
 supplied to the optional argument `D`.
 
+Finally, PyEMD can also return the flows between the two samples that are used
+to compute the distance. If the `return_flows` argument is `True`, then two
+arguments, the distance an array of the flows, are returned.
+
 See the docstring for a more formal description of the functionality. In MATLAB,
 the functionality is essentially the same; see the help for details.
 

@@ -6,7 +6,8 @@ from scipy.spatial.distance import cdist
 
 from c_emd import _emd
 
-def emd(X, Y, X_weights=None, Y_weights=None, distance='euclidean', D=None):
+def emd(X, Y, X_weights=None, Y_weights=None, distance='euclidean',
+        D=None, return_flows=False):
     """
     Computes the EMD between two weighted samples
     @param X : First sample
@@ -19,6 +20,8 @@ def emd(X, Y, X_weights=None, Y_weights=None, distance='euclidean', D=None):
         or "precomputed" if the pairwise distances D is supplied
     @param D : precomputed distance matrix; ignored unless distance="precomputed";
         must be array of size |X|-by-|Y|
+    @param return_flows : whether to return the flows between cells in addition
+        to the distance (default False)
     """
     if distance != 'precomputed':
         n = len(X)
@@ -46,4 +49,4 @@ def emd(X, Y, X_weights=None, Y_weights=None, distance='euclidean', D=None):
         elif m != len(Y_weights):
             raise ValueError('Size mismatch of D and Y_weights')
 
-    return _emd(X_weights, Y_weights, D)
+    return _emd(X_weights, Y_weights, D, return_flows)

@@ -1,4 +1,4 @@
-function dist = emd(X, Y, X_weights, Y_weights, distance, D)
+function [dist, flow] = emd(X, Y, X_weights, Y_weights, distance, D)
 %Computes the Earth Mover's Distance between two weighted samples
 % emd(X, Y[, X_weights, Y_weights, distance, D])
 % X : First sample
@@ -67,5 +67,10 @@ else
     end
 end
 
-dist = c_emd(X_weights, Y_weights, D);
+if nargout > 1
+    [dist, flow] = c_emd(X_weights, Y_weights, D);
+else
+    dist = c_emd(X_weights, Y_weights, D);
+end
+
 end

@@ -5,6 +5,7 @@
  * by Gary Doran, 2014                                           *
  *****************************************************************/
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 
 #include <emd.h>
@@ -31,7 +32,8 @@ void destruct_basis(struct basic_variable **basis, int size);
  * @return double : returns EMD between samples
  */
 double emd(int n_x, double *weight_x,
-           int n_y, double *weight_y, double **cost) {
+           int n_y, double *weight_y,
+           double **cost, double **flows) {
     struct basic_variable **basis;
     struct basic_variable *var, *root, *to_remove;
     struct adj_node *adj;
@@ -178,6 +180,16 @@ double emd(int n_x, double *weight_x,
     distance = 0;
     for (i = 0; i < B; i++) {
         distance += (basis[i]->flow * cost[basis[i]->row][basis[i]->col]);
+    }
+
+    if (flows != NULL) {
+        // Initialize to zero
+        for (i = 0; i < n_x; i++) {
+            memset(flows[i], 0, n_y*sizeof(double));
+        }
+        for (i = 0; i < B; i++) {
+            flows[basis[i]->row][basis[i]->col] = basis[i]->flow;
+        }
     }
 
     free(dual_x);

@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
     wy[1] = 0.5;
 
     double dist;
-    dist = emd(2, wx, 2, wy, C);
+    dist = emd(2, wx, 2, wy, C, NULL);
     printf("EMD: %f\n", dist);
 
     free(wx);

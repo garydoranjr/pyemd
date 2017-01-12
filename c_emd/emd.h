@@ -8,7 +8,7 @@
 
 double emd(int n_x, double *weight_x,
            int n_y, double *weight_y,
-           double **cost);
+           double **cost, double **flows);
 
 double *vector_malloc(int n);
 double *vector_copy(double *v, int n);

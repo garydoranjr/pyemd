@@ -10,7 +10,7 @@ c_emd = Extension(
 
 setup(
     name='emd',
-    version='1.0',
+    version='2.0',
     description=(
       "Accurate, efficient Earth Mover's Distance in Python."
     ),

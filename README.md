@@ -92,6 +92,19 @@ arguments, the distance an array of the flows, are returned.
 See the docstring for a more formal description of the functionality. In MATLAB,
 the functionality is essentially the same; see the help for details.
 
+Citing
+------
+If you have used PyEMD for your research and would like to cite it, you can use
+the following BibTeX entry:
+
+    @Misc{,
+      author =    {Gary Doran},
+      title =     {{PyEMD}: Earth Mover's Distance for {Python}},
+      year =      {2014--},
+      url = "https://github.com/garydoranjr/pyemd",
+      note = {[Online; accessed <today>]}
+    }
+
 Questions and Issues
 --------------------
 If you find any bugs or have any questions about this code, please create an

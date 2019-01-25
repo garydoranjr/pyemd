@@ -11,8 +11,8 @@
 #include <emd.h>
 
 struct basic_variable **initialize_flow(int n_x, double *weight_x,
-                                       int n_y, double *weight_y,
-                                       double **cost);
+                                        int n_y, double *weight_y,
+                                        double **cost);
 struct basic_variable *init_basic(int row, int col, double flow);
 void insert_basic(struct basic_variable **basis, int size,
                   struct basic_variable *node);
@@ -205,14 +205,14 @@ double emd(int n_x, double *weight_x,
  * using the "Northwest Corner Rule"
  */
 struct basic_variable **initialize_flow(int n_x, double *weight_x,
-                                       int n_y, double *weight_y,
-                                       double **cost){
+                                        int n_y, double *weight_y,
+                                        double **cost){
     struct basic_variable **basis;
     struct basic_variable *basic;
     double *remaining_x;
     double *remaining_y;
     int fx, fy, b, B;
-    
+
     b = 0;
     B = n_x + n_y - 1;
 

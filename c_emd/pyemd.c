@@ -82,14 +82,13 @@ static struct PyModuleDef emdmodule = {
     PyModuleDef_HEAD_INIT,
     "c_emd",
     "Earth Mover's Distance",
-    -1,
+    0,
     c_emd_methods
 };
 
 PyMODINIT_FUNC
 PyInit_c_emd(void)
 {
-    PyObject *m = PyModule_Create(&emdmodule);
     import_array();
-    return m;
+    return PyModule_Create(&emdmodule);
 }

@@ -36,6 +36,11 @@ to set the path to the desired MATLAB installation, and then run `make`.
 After the MEX file has compiled, add the `matlab` subdirectory to the MATLAB
 path (e.g., by using the `addpath` command in MATLAB).
 
+Support in Other Languages
+--------------------------
+*Rust:* Giovanni Cherubin has written a wrapper for the Rust language here:
+<https://github.com/gchers/rust-emd>
+
 Why?
 ----
 Several Python wrappers for C-based EMD implementations already exist, so why is

@@ -23,6 +23,31 @@ def emd(X, Y, X_weights=None, Y_weights=None, distance='euclidean',
     @param return_flows : whether to return the flows between cells in addition
         to the distance (default False)
     """
+
+    if X_weights is not None:
+        if not isinstance(X_weights, np.ndarray):
+            raise ValueError("X_weights has to be a Numpy ndarray, not '{}'.".format(type(X_weights)))
+        if not X_weights.flags['C_CONTIGUOUS']:
+            raise ValueError("X_weights has to be a C-contiguous array.")
+        if not X_weights.dtype == np.float64:
+            raise ValueError("X_weights has to be of dtype double (float64).")
+        if np.any(X_weights < 0):
+            raise ValueError("X_weights has to be non-negative.")
+        if not np.isclose(np.sum(X_weights), 1):
+            raise ValueError("X_weights has to sum to 1.")
+
+    if Y_weights is not None:
+        if not isinstance(Y_weights, np.ndarray):
+            raise ValueError("Y_weights has to be a Numpy ndarray, not '{}'.".format(type(Y_weights)))
+        if not Y_weights.flags['C_CONTIGUOUS']:
+            raise ValueError("Y_weights has to be a C-contiguous array.")
+        if not Y_weights.dtype == np.float64:
+            raise ValueError("Y_weights has to be of dtype double (float64).")
+        if np.any(Y_weights < 0):
+            raise ValueError("Y_weights has to be non-negative.")
+        if not np.isclose(np.sum(Y_weights), 1):
+            raise ValueError("Y_weights has to sum to 1.")
+
     if distance != 'precomputed':
         n = len(X)
         m = len(Y)
@@ -39,6 +64,16 @@ def emd(X, Y, X_weights=None, Y_weights=None, distance='euclidean',
     else:
         if D is None:
             raise ValueError("D must be supplied when distance='precomputed'")
+
+        if not isinstance(D, np.ndarray):
+            raise ValueError("D has to be a Numpy ndarray, not '{}'.".format(type(D)))
+        if not D.flags['C_CONTIGUOUS']:
+            raise ValueError("D has to be a C-contiguous array.")
+        if not D.dtype == np.float64:
+            raise ValueError("D has to be of dtype double (float64).")
+        if np.any(D < 0):
+            raise ValueError("D has to be non-negative.")
+
         n, m = D.shape
         if X_weights is None:
             X_weights = np.ones(n)/n

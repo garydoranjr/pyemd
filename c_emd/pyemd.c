@@ -2,6 +2,7 @@
 /* Python Wrapper for EMD */
 /**************************/
 #include <Python.h>
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <numpy/arrayobject.h>
 
 #include <emd.h>
@@ -24,15 +25,15 @@ static PyObject *_emd(PyObject *self, PyObject *args) {
     if (arg1 == NULL || arg2 == NULL || arg3 == NULL || return_flows == NULL) {
         return NULL;
     }
-    
+
     // Convert inputs
     // Assumes array data is contiguous
-    n_x = (int) arg1->dimensions[0];
-    n_y = (int) arg2->dimensions[0];
-    weight_x = (double *)arg1->data;
-    weight_y = (double *)arg2->data;
+    n_x = (int) PyArray_DIMS(arg1)[0];
+    n_y = (int) PyArray_DIMS(arg2)[0];
+    weight_x = (double *)PyArray_DATA(arg1);
+    weight_y = (double *)PyArray_DATA(arg2);
     cost = (double **) malloc((size_t) n_x * sizeof(double *));
-    data_ptr = (double *)arg3->data;
+    data_ptr = (double *)PyArray_DATA(arg3);
     for (i = 0; i < n_x; i++) { cost[i] = data_ptr + i*n_y; }
 
     double **flows_data_ptr = NULL;
@@ -44,7 +45,7 @@ static PyObject *_emd(PyObject *self, PyObject *args) {
     }
 
     distance = emd(n_x, weight_x, n_y, weight_y, cost, flows_data_ptr);
-    
+
     free(cost);
     PyObject *retval = NULL;
     if (flows_data_ptr) {
@@ -77,9 +78,17 @@ static PyMethodDef c_emd_methods[] = {
    { NULL, NULL, 0, NULL }
 };
 
-void initc_emd(void)
+static struct PyModuleDef emdmodule = {
+    PyModuleDef_HEAD_INIT,
+    "c_emd",
+    "Earth Mover's Distance",
+    0,
+    c_emd_methods
+};
+
+PyMODINIT_FUNC
+PyInit_c_emd(void)
 {
-    Py_InitModule3("c_emd", c_emd_methods,
-                   "Earth Mover's Distance");
     import_array();
+    return PyModule_Create(&emdmodule);
 }

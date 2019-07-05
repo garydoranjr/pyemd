@@ -22,9 +22,9 @@ or by running the setup file manually
     cd pyemd
     python setup.py install
 
-Note the code requires Python 2 (Python 3 is not supported) and depends on the
-`numpy` and `scipy` packages. So have those installed first. The build will
-likely fail if it can't find them. For more information, see:
+Note the code requires Python 3 and depends on the `numpy` and `scipy` packages.
+So have those installed first. The build will likely fail if it can't find them.
+For more information, see:
 
  + [NumPy](http://www.numpy.org/): Library for efficient matrix math in Python
  + [SciPy](http://www.scipy.org/): Library for more MATLAB-like functionality

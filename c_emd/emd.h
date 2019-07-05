@@ -2,7 +2,7 @@
 /* EMD - compute earth mover's distance */
 /****************************************/
 
-#define EPSILON 1e-12
+#define EPSILON 1e-10
 #define FALSE 0
 #define TRUE 1
 
